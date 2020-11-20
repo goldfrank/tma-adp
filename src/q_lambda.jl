@@ -10,7 +10,7 @@ pyplot()
 Plots.PyPlotBackend()
 
 #time string for saving files
-timenow = string(now())
+global_start_time = string(now())
 
 
 #seed random number generator (rng)
@@ -49,7 +49,8 @@ else
 end
 
 #output header file
-header_string = string("Q-Lambda Run: ", timenow)
+outfile = string(global_start_time, "_weights.csv")
+header_string = string("Q-Lambda Run: ", global_start_time)
 header_string = string(header_string, "\n", "Gamma: ", γ)
 header_string = string(header_string, "\n", "Alpha: ", α)
 header_string = string(header_string, "\n", "N: ", N)
@@ -58,7 +59,7 @@ header_string = string(header_string, "\n", "Loss Reward: ", LOSS_REWARD)
 header_string = string(header_string, "\n", "Variance: ", variance_enabled)
 
 #write output header
-header_filename = string(timenow, "_header.txt")
+header_filename = string(global_start_time, "_header.txt")
 open(header_filename, "w") do f
     write(f, header_string)
 end
@@ -74,8 +75,10 @@ total_reward = 0
 best_average = 1
 plotting_this_round = false
 
+run_times = []
 # q-lambda algorithm trials
 for i in 1:num_runs
+    run_start_time = now()
     global ϵ, EPSILON
     global plotting, plotting_this_round, variance_enabled
     global testing
@@ -119,12 +122,18 @@ for i in 1:num_runs
             gif(anim, name, fps=10)
         end
     end
-
+    push!(run_times, (now()-run_start_time).value)
     if i % 5 == 0
         thetaframe = DataFrame(θ)
         CSV.write(outfile, thetaframe)
-        namefile = string(timenow, "_data.csv")
+        namefile = string(global_start_time, "_data.csv")
         CSV.write(namefile, DataFrame(run_data))
+        updated_header = string(header_string, "\nAverage Runtime: ", mean(run_times))
+        CSV.write(namefile, DataFrame(run_data))
+        open(header_filename, "w") do f
+            write(f, updated_header)
+        end
+
     end
 
     if i % 20 == 0
