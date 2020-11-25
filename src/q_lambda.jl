@@ -10,7 +10,10 @@ pyplot()
 Plots.PyPlotBackend()
 
 #time string for saving files
-global_start_time = string(now())
+
+now_string = string(now())
+global_start_time = string(now_string[1:4], "_", now_string[6:7], now_string[9:13], "_", now_string[15:16], "_", now_string[18:19])
+#global_start_time = string(now())
 
 
 #seed random number generator (rng)
@@ -38,14 +41,14 @@ burn_in_length = 15
 
 # input file for weights (theta)
 infile = arguments["theta"]
-
+print(infile)
 # initialize weights to all 0, naive rewards, or previous results, based on command line arguments
 if infile == "zeros"
     θ = zeros(length(grid),6);
 elseif infile == "rewards"
     θ = [r(Tuple(ind2x(grid, j)),3) for j in 1:length(grid), i in 1:6];
 else
-    θ = convert(Matrix, CSV.read(infile))
+    θ = convert(Matrix, CSV.read(infile, DataFrame))
 end
 
 #output header file
@@ -60,6 +63,7 @@ header_string = string(header_string, "\n", "Variance: ", variance_enabled)
 
 #write output header
 header_filename = string(global_start_time, "_header.txt")
+header_filename = "test.txt "
 open(header_filename, "w") do f
     write(f, header_string)
 end

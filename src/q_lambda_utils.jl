@@ -26,19 +26,19 @@ function parse_commandline()
     @add_arg_table! s begin
         "--theta"
             help = ""
-            default = "sarsa_lambda.csv"
+            default = "zeros"
         "--lambda"
             help = ""
-            default = "0.8"
+            default = "0.9"
         "--alpha"
             help = ""
             default = "0.7"
         "--gamma"
             help = ""
-            default = "0.5"
+            default = "0.9"
         "--epsilon"
             help = ""
-            default = "0.5"
+            default = "0.1"
         "--collision"
             help = ""
             default = "-2"
@@ -47,10 +47,10 @@ function parse_commandline()
             default = "-2"
         "--N"
             help = ""
-            default = "500"
+            default = "1000"
         "--trials"
             help = ""
-            default = "100"
+            default = "1000"
         "--variance"
             help = ""
             default = "true"
@@ -76,6 +76,15 @@ end
 #returns next course in degrees
 function next_crs(crs,rng)
     if rand(rng) < .9
+        return crs
+    end
+    crs = (crs + rand(rng,[-1,1])*30) % 360
+    if crs < 0 crs += 360 end
+    return crs
+end
+
+function next_crs_gen(crs,rng)
+    if rand(rng) < .75
         return crs
     end
     crs = (crs + rand(rng,[-1,1])*30) % 360
@@ -115,6 +124,33 @@ end
 #
 ACTION_PENALTY = -.05
 
+function f_gen(state, control, rng)
+    TGT_SPD = 1
+    r, θ, crs, spd = state
+    spd = control[2]
+
+    θ = θ % 360
+    θ -= control[1]
+    θ = θ % 360
+    if θ < 0 θ += 360 end
+
+    crs = crs % 360
+    crs -= control[1]
+    if crs < 0 crs += 360 end
+    crs = crs % 360
+
+    x = r*cos(π/180*θ)
+    y = r*sin(π/180*θ)
+
+    pos = [x + TGT_SPD*cos(π/180*crs) - spd, y +
+        TGT_SPD*sin(π/180*crs)]
+    crs = next_crs_gen(crs,rng)
+
+    r = sqrt(pos[1]^2 + pos[2]^2)
+    θ = atan(pos[2],pos[1])*180/π
+    if θ < 0 θ += 360 end
+    return (r, θ, crs, spd)::NTuple{4, Real}
+end
 # returns reward as a function of range
 function r(s,u, action_penalty=ACTION_PENALTY)
     global COLLISION_REWARD, LOSS_REWARD
