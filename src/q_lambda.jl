@@ -63,7 +63,6 @@ header_string = string(header_string, "\n", "Variance: ", variance_enabled)
 
 #write output header
 header_filename = string(global_start_time, "_header.txt")
-header_filename = "test.txt "
 open(header_filename, "w") do f
     write(f, header_string)
 end
@@ -128,8 +127,8 @@ for i in 1:num_runs
     end
     push!(run_times, (now()-run_start_time).value)
     if i % 5 == 0
-        thetaframe = DataFrame(θ)
-        CSV.write(outfile, thetaframe)
+        weights_frame = DataFrame(θ)
+        CSV.write(outfile, weights_frame)
         namefile = string(global_start_time, "_data.csv")
         CSV.write(namefile, DataFrame(run_data))
         updated_header = string(header_string, "\nAverage Runtime: ", mean(run_times))
@@ -161,7 +160,6 @@ for i in 1:num_runs
     #ϵ = max(min(.8, (cum_coll+cum_loss)/i),.005)
 end
 
-thetaframe = DataFrame(θ)
-CSV.write(outfile, thetaframe)
-
+weights_frame = DataFrame(θ)
+CSV.write(outfile, weights_frame)
 #
