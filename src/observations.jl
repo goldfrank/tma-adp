@@ -1,7 +1,7 @@
 SENSOR_RANGE = 150
 
 function obs1(state)
-    rel_brg = state[2]-state[4]
+    rel_brg = state[2]
     range = state[1]
     if rel_brg < 0
         rel_brg += 360
@@ -15,7 +15,7 @@ function obs1(state)
 end
 
 function obs2(state)
-    rel_brg = state[2]-state[4]
+    rel_brg = state[2]
     range = state[1]
     if rel_brg < 0 rel_brg += 360 end
     if ((90 <= rel_brg < 120) || (240 < rel_brg <= 270)) && (range < SENSOR_RANGE/2)
@@ -27,7 +27,7 @@ function obs2(state)
 end
 
 function obs3(state)
-    rel_brg = state[2]-state[4]
+    rel_brg = state[2]
     range = state[1]
     if rel_brg < 0 rel_brg += 360 end
     if (120 <= rel_brg <= 240) && (range < SENSOR_RANGE/2)
@@ -40,7 +40,7 @@ end
 
 #null observation, also referred to as "observation 4" in paper
 function obs0(state)
-    rel_brg = state[2]-state[4]
+    rel_brg = state[2]
     range = state[1]
     if rel_brg < 0 rel_brg += 360 end
     if (rel_brg <= 60) || (rel_brg >= 300) || (range >= SENSOR_RANGE)
